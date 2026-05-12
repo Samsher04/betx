@@ -3,8 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 
 import Home from "./pages/Home";
-import Crash from "./pages/Crash";
-import Wallet from "./pages/Wallet";
+
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -14,8 +13,7 @@ export default function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/crash" element={<Crash />} />
-        <Route path="/wallet" element={<Wallet />} />
+     
         <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
