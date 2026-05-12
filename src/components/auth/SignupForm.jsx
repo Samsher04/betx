@@ -5,11 +5,15 @@ import { RiLockPasswordFill, RiUserSmileFill } from "react-icons/ri";
 import { FaEye, FaEyeSlash, FaShieldAlt, FaUserPlus } from "react-icons/fa";
 import { MdCasino } from "react-icons/md"; // ✅ Missing import added
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectSite } from "../../utils/helper/commonSelectors";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getSitesByDomain, signUp } from "../../api";
+import { loginSuccess } from "../../redux/slices/userSlice";
+import { setAccountType } from "../../redux/slices/accountSlice";
+import { subscribeToLogin } from "../../socketClient";
+import { showToast } from "../../utils/ToastContent";
 
 // ─────────────────────────────────────────────
 // Reusable InputField component
@@ -91,14 +95,14 @@ function SignupForm({ onSwitch, onSuccess }) {
   const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
-  // ✅ URL params (e.g. ?referral=abc)
+  const navigate = useNavigate();
+
   const [params, setParams] = useState({});
 
   const siteDetails = useSelector(selectSite());
-  const navigate = useNavigate();
 
-  // ✅ Single source of truth — formData holds everything
   const [formData, setFormData] = useState({
     mobile: "",
     userName: "",
@@ -156,8 +160,7 @@ function SignupForm({ onSwitch, onSuccess }) {
 
         setFormData((prev) => ({
           ...prev,
-          createdBy:
-            site?.createdBy?._id || site?.siteDetails?.createrId || "",
+          createdBy: site?.createdBy?._id || site?.siteDetails?.createrId || "",
           role: site?.userRoleId || "",
           domain: site?.siteDetails?.domainDetails?._id || "",
           ownerDomainId: site?.siteDetails?.admindomainName?._id || "",
@@ -197,36 +200,79 @@ function SignupForm({ onSwitch, onSuccess }) {
     return e;
   };
 
-  // ─── Submit ───────────────────────────────
+
+ 
+ 
   const handleSignup = async () => {
-    // ✅ Run validation first
+    // ✅ VALIDATION
     const validationErrors = validate();
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
     setLoading(true);
-    try {
 
+    try {
+      // REMOVE CONFIRM PASSWORD
       const { confirmPassword, ...payload } = formData;
 
+      // ─── SIGNUP API ───────────────────────
       const response = await signUp(payload);
-      console.log({response});
-      
 
+
+
+      // ─── SUCCESS ─────────────────────────
       if (response?.data?.message === "User created successfully") {
-        toast.success("Registration Successful");
-        onSuccess?.(); // ✅ call onSuccess callback if provided
-        navigate("/");
+        // ─── AUTO LOGIN ────────────────────
+        const loginResponse = await subscribeToLogin({
+          userName: formData.userName,
+          password: formData.password,
+          x_panel_type: "user",
+        });
+
+
+
+        // ─── LOGIN SUCCESS ─────────────────
+        if (loginResponse?.success) {
+          const { token, userdata } = loginResponse;
+
+          localStorage.setItem("userId", userdata?._id);
+
+          dispatch(
+            loginSuccess({
+              userData: userdata,
+              loggedInType: "real",
+              token,
+            }),
+          );
+
+          dispatch(
+            setAccountType({
+              userData: userdata,
+              type: "real",
+            }),
+          );
+
+          showToast.success(`Welcome ${userdata?.userName}`);
+
+
+
+          // REDIRECT
+          navigate("/");
+        } else {
+          showToast.error(loginResponse?.message || "Auto login failed");
+        }
       } else {
-        toast.error(response?.data?.message || "Signup failed");
+        showToast.error(response?.data?.message || "Signup failed");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Signup failed");
       console.error(err);
+
+      showToast.error(err?.response?.data?.message || "Signup failed");
     } finally {
-      setLoading(false); // ✅ always reset loading
+      setLoading(false);
     }
   };
 

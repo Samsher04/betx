@@ -109,7 +109,7 @@ document.addEventListener("visibilitychange", () => {
 
       redirected = true;
 
-      window.location.reload();
+      // window.location.reload();
     }
   }
 });

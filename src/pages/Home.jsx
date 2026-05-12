@@ -1,22 +1,22 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import {
-  RiTeamFill,
-  RiMoneyDollarCircleFill,
-  RiGamepadFill,
-} from "react-icons/ri";
+import { RiTeamFill, RiLuggageDepositFill } from "react-icons/ri";
 
-import {
-  RiRocket2Fill,
-  RiPlayFill,
-  RiVipCrown2Fill,
-} from "react-icons/ri";
-
+import { PiHandWithdrawFill } from "react-icons/pi";
+import { launcherUrl, updateCasinoBalance } from "../api";
+import { RiPlayFill, RiVipCrown2Fill } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAvailableBalance, updateUserCasinoBalance } from "../redux/slices/userSlice";
+import { toast } from "react-toastify";
+import { isMobile } from "react-device-detect";
+import { showToast } from "../utils/ToastContent";
 
 const LIVE_GAMES = [
   {
     title: "CRASH",
+    gameId: "crash_v1",
     players: "12.4K",
     multiplier: "4.52x",
     icon: "🚀",
@@ -28,6 +28,7 @@ const LIVE_GAMES = [
   },
   {
     title: "DICE",
+    gameId: "dice_v1",
     players: "8.2K",
     multiplier: "2.1x",
     icon: "🎲",
@@ -42,6 +43,7 @@ const LIVE_GAMES = [
 const ORIGINALS = [
   {
     title: "HILO",
+    gameId: "hilo_v1",
     icon: "🃏",
     color: "#a78bfa",
     bg: "from-violet-900/80 to-purple-900/80",
@@ -49,6 +51,7 @@ const ORIGINALS = [
   },
   {
     title: "MINES",
+    gameId: "mines_v1",
     icon: "💣",
     color: "#f472b6",
     bg: "from-pink-900/80 to-rose-900/80",
@@ -56,6 +59,7 @@ const ORIGINALS = [
   },
   {
     title: "PLINKO",
+    gameId: "plinko_v1",
     icon: "🎯",
     color: "#38bdf8",
     bg: "from-sky-900/80 to-cyan-900/80",
@@ -66,6 +70,7 @@ const ORIGINALS = [
 const SLOTS = [
   {
     title: "Sweet Bonanza",
+    gameId: "sweet_bonanza_v1",
     rtp: "96.5%",
     rating: "4.9",
     tag: "JACKPOT",
@@ -74,6 +79,7 @@ const SLOTS = [
   },
   {
     title: "Wild Spin",
+    gameId: "wild_spin_v1",
     rtp: "97.1%",
     rating: "4.8",
     tag: "NEW",
@@ -82,6 +88,7 @@ const SLOTS = [
   },
   {
     title: "Lucky Joker",
+    gameId: "lucky_joker_v1",
     rtp: "95.8%",
     rating: "4.7",
     tag: "HOT",
@@ -89,6 +96,8 @@ const SLOTS = [
     img: "https://images.unsplash.com/photo-1606166325683-e6deb697d301?q=80&w=600&auto=format&fit=crop",
   },
 ];
+
+const AVIATOR_GAME_ID = "SPB-aviator";
 
 const WINNERS = [
   { name: "Raj***", game: "Crash", amount: "₹1,24,500", time: "2m ago" },
@@ -392,8 +401,78 @@ function SlotCard({ slot, i }) {
   );
 }
 
-export default function App() {
+export default function Home() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userData = useSelector((state) => state?.user?.userData);
+  const loginType = useSelector((state) => state.user.loggedInType);
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+  const siteCasinoData = useSelector((state) => state.siteCasino);
 
+  const handlePlayClick = async (item) => {
+    if (loginType == "") {
+      return;
+    } else if (loginType == "demo") {
+      showToast.error("login with real id");
+      return;
+    }
+
+    let amount = userData?.availableBalance - userData?.exposure || 0;
+    let siteCasinoBalance = siteCasinoData?.casinoBalance || 0;
+    let finalAmountToDeduct = Math.min(amount, siteCasinoBalance);
+
+    if (
+      finalAmountToDeduct === 0 &&
+      (!userData?.casinoBalance || userData?.casinoBalance <= 0)
+    ) {
+      showToast.warning("Insufficient balance");
+      return;
+    }
+
+    try {
+      // setLoading(true);
+      const response = await updateCasinoBalance({
+        CasinoBalance: finalAmountToDeduct,
+      });
+
+      dispatch(updateAvailableBalance(response.data.user.availableBalance));
+      dispatch(updateUserCasinoBalance(response.data.user.casinoBalance));
+    } catch (error) {
+      console.error("error", error.response?.data?.message);
+    } finally {
+      // setLoading(false);
+    }
+
+    const data = {
+      gameId: item.gameId,
+      playerId: userData?._id || "",
+      displayName: userData?.casinoDisplayName || "",
+      currency: "INR",
+      country: "IN",
+      gender: "M",
+      birthDate: "1996-10-12",
+      mode: isLoggedIn ? "real" : "demo",
+      device: isMobile ? "mobile" : "desktop",
+      returnUrl: window.location.href,
+      walletSessionId: userData?.sessionToken || "",
+    };
+
+    try {
+      const res = await launcherUrl(data);
+
+      if (res?.success && res?.data?.url) {
+        const gameUrl = encodeURIComponent(res.data.url);
+        navigate(`/game-lobby?gameId=${gameUrl}`);
+      } else {
+        console.error("Launcher URL request failed", res);
+      }
+    } catch (error) {
+      console.error(
+        "Error launching Aviator:",
+        error?.response?.data?.message || error.message,
+      );
+    }
+  };
 
   return (
     <div
@@ -440,137 +519,128 @@ export default function App() {
       <div className="max-w-[430px] mx-auto px-4 pb-24">
         {/* TOP BAR */}
 
-     {/* AVIATOR HERO BANNER */}
-<motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5 }}
-  className="relative overflow-hidden rounded-[32px] h-[240px]"
-  style={{
-    border: "1px solid rgba(239,68,68,0.18)",
-    background:
-      "linear-gradient(135deg,#140909 0%,#09090f 100%)",
-    boxShadow:
-      "0 20px 60px rgba(0,0,0,0.55), 0 0 45px rgba(239,68,68,0.12)",
-  }}
->
-  {/* AVIATOR IMAGE */}
-  <img
-    src="https://igamingafrika.com/wp-content/uploads/2023/05/Aviator_10.png"
-    alt="aviator"
-    className="absolute right-0 top-0 h-full object-contain opacity-90"
-  />
+        {/* AVIATOR HERO BANNER */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative overflow-hidden rounded-[32px] h-[240px]"
+          style={{
+            border: "1px solid rgba(239,68,68,0.18)",
+            background: "linear-gradient(135deg,#140909 0%,#09090f 100%)",
+            boxShadow:
+              "0 20px 60px rgba(0,0,0,0.55), 0 0 45px rgba(239,68,68,0.12)",
+          }}
+        >
+          {/* AVIATOR IMAGE */}
+          <img
+            src="https://igamingafrika.com/wp-content/uploads/2023/05/Aviator_10.png"
+            alt="aviator"
+            className="absolute right-0 top-0 h-full object-contain opacity-90"
+          />
 
-  {/* DARK OVERLAY */}
-  <div
-    className="absolute inset-0"
-    style={{
-      background:
-        "linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.82) 40%, rgba(0,0,0,0.15) 100%)",
-    }}
-  />
+          {/* DARK OVERLAY */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.82) 40%, rgba(0,0,0,0.15) 100%)",
+            }}
+          />
 
-  {/* RED GLOW */}
-  <div className="absolute -left-20 top-0 w-[240px] h-[240px] bg-red-500/20 blur-[100px] rounded-full" />
+          {/* RED GLOW */}
+          <div className="absolute -left-20 top-0 w-[240px] h-[240px] bg-red-500/20 blur-[100px] rounded-full" />
 
-  {/* GOLD TOP LINE */}
-  <div
-    className="absolute top-0 inset-x-0 h-px"
-    style={{
-      background:
-        "linear-gradient(90deg,transparent,rgba(251,191,36,0.6),transparent)",
-    }}
-  />
+          {/* GOLD TOP LINE */}
+          <div
+            className="absolute top-0 inset-x-0 h-px"
+            style={{
+              background:
+                "linear-gradient(90deg,transparent,rgba(251,191,36,0.6),transparent)",
+            }}
+          />
 
-  {/* CONTENT */}
-  <div className="relative z-10 h-full p-6 flex flex-col justify-between">
-    {/* TOP */}
-    <div className="flex items-center justify-between">
-      {/* LIVE */}
-      <div
-        className="flex items-center gap-2 px-3 py-1.5 rounded-full"
-        style={{
-          background: "rgba(239,68,68,0.12)",
-          border: "1px solid rgba(239,68,68,0.25)",
-        }}
-      >
-        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+          {/* CONTENT */}
+          <div className="relative z-10 h-full p-6 flex flex-col justify-between">
+            {/* TOP */}
+            <div className="flex items-center justify-between">
+              {/* LIVE */}
+              <div
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full"
+                style={{
+                  background: "rgba(239,68,68,0.12)",
+                  border: "1px solid rgba(239,68,68,0.25)",
+                }}
+              >
+                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
 
-        <span className="text-[10px] font-black tracking-[2px] text-red-400">
-          LIVE GAME
-        </span>
-      </div>
+                <span className="text-[10px] font-black tracking-[2px] text-red-400">
+                  LIVE GAME
+                </span>
+              </div>
 
-      {/* PLAYERS */}
-      <div
-        className="flex items-center gap-1 px-3 py-1.5 rounded-full"
-        style={{
-          background: "rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.08)",
-        }}
-      >
-        <RiVipCrown2Fill
-          size={13}
-          className="text-yellow-400"
-        />
+              {/* PLAYERS */}
+              <div
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full"
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              >
+                <RiVipCrown2Fill size={13} className="text-yellow-400" />
 
-        <span className="text-[10px] font-bold text-white/70">
-          24K PLAYERS
-        </span>
-      </div>
-    </div>
+                <span className="text-[10px] font-bold text-white/70">
+                  24K PLAYERS
+                </span>
+              </div>
+            </div>
 
-    {/* BOTTOM */}
-    <div>
- 
+            {/* BOTTOM */}
+            <div>
+              {/* DESC */}
+              <p className="text-white/50 text-xs mt-3 leading-relaxed max-w-[220px]">
+                Cash out before the plane crashes and win huge multipliers
+                instantly.
+              </p>
 
-      {/* DESC */}
-      <p className="text-white/50 text-xs mt-3 leading-relaxed max-w-[220px]">
-        Cash out before the plane crashes
-        and win huge multipliers instantly.
-      </p>
+              {/* BUTTON */}
+              <motion.button
+              onClick={() => handlePlayClick({ gameId: AVIATOR_GAME_ID })}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="mt-5 px-5 py-3 rounded-2xl flex items-center gap-2 text-sm font-black tracking-wide"
+                style={{
+                  background: "linear-gradient(135deg,#ef4444,#f97316)",
+                  color: "#fff",
+                  boxShadow: "0 10px 30px rgba(239,68,68,0.35)",
+                }}
+              >
+                <RiPlayFill size={18} />
+                PLAY AVIATOR
+              </motion.button>
+            </div>
+          </div>
 
-      {/* BUTTON */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="mt-5 px-5 py-3 rounded-2xl flex items-center gap-2 text-sm font-black tracking-wide"
-        style={{
-          background:
-            "linear-gradient(135deg,#ef4444,#f97316)",
-          color: "#fff",
-          boxShadow:
-            "0 10px 30px rgba(239,68,68,0.35)",
-        }}
-      >
-        <RiPlayFill size={18} />
-        PLAY AVIATOR
-      </motion.button>
-    </div>
-  </div>
-
-  {/* FLOATING MULTIPLIER */}
-  <motion.div
-    animate={{
-      y: [-5, 5, -5],
-    }}
-    transition={{
-      repeat: Infinity,
-      duration: 2.5,
-    }}
-    className="absolute right-5 bottom-5 px-4 py-2 rounded-2xl"
-    style={{
-      background:
-        "linear-gradient(135deg,#ef4444,#f97316)",
-      boxShadow:
-        "0 8px 25px rgba(239,68,68,0.35)",
-    }}
-  >
-    <span className="text-white text-sm font-black tracking-wide">
-      12.43x
-    </span>
-  </motion.div>
-</motion.div>
+          {/* FLOATING MULTIPLIER */}
+          <motion.div
+            animate={{
+              y: [-5, 5, -5],
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 2.5,
+            }}
+            className="absolute right-5 bottom-5 px-4 py-2 rounded-2xl"
+            style={{
+              background: "linear-gradient(135deg,#ef4444,#f97316)",
+              boxShadow: "0 8px 25px rgba(239,68,68,0.35)",
+            }}
+          >
+            <span className="text-white text-sm font-black tracking-wide">
+              12.43x
+            </span>
+          </motion.div>
+        </motion.div>
 
         {/* STATS BAR */}
         <motion.div
@@ -584,22 +654,23 @@ export default function App() {
               label: "Online Players",
               value: "24,891",
               icon: RiTeamFill,
-              color: "#22c55e",
-              glow: "rgba(34,197,94,0.35)",
-            },
-            {
-              label: "Today's Payouts",
-              value: "₹2.4Cr",
-              icon: RiMoneyDollarCircleFill,
               color: "#f59e0b",
               glow: "rgba(245,158,11,0.35)",
             },
             {
-              label: "Live Games",
-              value: "340+",
-              icon: RiGamepadFill,
-              color: "#a78bfa",
-              glow: "rgba(167,139,250,0.35)",
+              label: "Add Funds",
+              value: "Deposit",
+              icon: RiLuggageDepositFill,
+
+              color: "#22c55e",
+              glow: "rgba(34,197,94,0.35)",
+            },
+            {
+              label: "Withdraw Funds",
+              value: "Withdraw",
+              icon: PiHandWithdrawFill,
+              color: "#ef4444",
+              glow: "rgba(239,68,68,0.35)",
             },
           ].map((stat, i) => {
             const Icon = stat.icon;
@@ -616,7 +687,6 @@ export default function App() {
                   background: `${stat.color}10`,
                   border: `1px solid ${stat.color}25`,
                   backdropFilter: "blur(14px)",
-               
                 }}
               >
                 {/* TOP LIGHT */}
@@ -645,7 +715,12 @@ export default function App() {
                 </div>
 
                 {/* VALUE */}
-                <div className="text-sm font-black text-white mt-3 tracking-wide">
+                <div
+                  className="text-sm font-black mt-3 tracking-wide"
+                  style={{
+                    color: stat.color,
+                  }}
+                >
                   {stat.value}
                 </div>
 
@@ -678,45 +753,6 @@ export default function App() {
             <OriginalCard key={i} item={item} i={i} />
           ))}
         </div>
-
-        {/* PROMO BANNER */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-8 rounded-[24px] p-5 relative overflow-hidden"
-          style={{
-            background:
-              "linear-gradient(135deg, #1c1003 0%, #292004 50%, #1c1003 100%)",
-            border: "1px solid rgba(251,191,36,0.3)",
-            boxShadow: "0 8px 40px rgba(251,191,36,0.1)",
-          }}
-        >
-          <div className="absolute top-0 right-0 text-8xl opacity-10 pointer-events-none">
-            💎
-          </div>
-          <div
-            className="text-[10px] font-black tracking-widest mb-1"
-            style={{ color: "#f59e0b" }}
-          >
-            ⚡ LIMITED OFFER
-          </div>
-          <h3 className="text-white font-black text-xl leading-tight">
-            Refer & Earn <span style={{ color: "#f59e0b" }}>₹5,000</span>
-          </h3>
-          <p className="text-white/40 text-xs mt-1 mb-3">
-            For every friend who deposits ₹500+
-          </p>
-          <button
-            className="text-xs font-black px-4 py-2 rounded-xl"
-            style={{
-              background: "linear-gradient(135deg, #d97706, #f59e0b)",
-              color: "#1c1003",
-            }}
-          >
-            Invite Friends →
-          </button>
-        </motion.div>
 
         {/* SLOTS */}
         <SectionTitle title="Popular Slots" icon="🎰" accent="#a78bfa" />

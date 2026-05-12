@@ -24,6 +24,8 @@ import { useDispatch } from "react-redux";
 import { loginSuccess } from "../redux/slices/userSlice";
 import { subscribeToLogin } from "../socketClient";
 import { setAccountType } from "../redux/slices/accountSlice";
+import { showToast } from "../utils/ToastContent";
+import { useNavigate } from "react-router-dom";
 
 function FloatingParticle({ style }) {
   return (
@@ -120,7 +122,7 @@ function LoginForm({ onSwitch, onSuccess }) {
     password: "",
     x_panel_type: "user",
   });
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const validateLogin = () => {
@@ -145,25 +147,32 @@ function LoginForm({ onSwitch, onSuccess }) {
       if (response.success) {
         const { token, userdata } = response;
 
+        showToast.success(`Welcome ${userdata?.userName}`);
+
         localStorage.setItem("userId", userdata?._id);
 
-        dispatch(loginSuccess({
-          userData: userdata,
-          loggedInType: "real",
-          token: token,
-        }));
-        dispatch(setAccountType({
-          userData: userdata,
-          type: "real",
-        }));
+        dispatch(
+          loginSuccess({
+            userData: userdata,
+            loggedInType: "real",
+            token: token,
+          }),
+        );
+        dispatch(
+          setAccountType({
+            userData: userdata,
+            type: "real",
+          }),
+        );
 
-        onSuccess?.();
+
+        navigate("/");
       } else {
-        setErrors({ general: response.message || "Login failed. Try again." });
+        showToast.error(response.message || "Login failed. Try again.");
       }
     } catch (error) {
       console.error("Login API error:", error);
-      setErrors({ general: "Something went wrong. Please try again." });
+      showToast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -183,7 +192,9 @@ function LoginForm({ onSwitch, onSuccess }) {
         label="USERNAME"
         placeholder="Enter username"
         value={formData.userName}
-        onChange={(e) => setFormData((prev) => ({ ...prev, userName: e.target.value }))}
+        onChange={(e) =>
+          setFormData((prev) => ({ ...prev, userName: e.target.value }))
+        }
         error={errors.userName}
       />
 
@@ -193,7 +204,9 @@ function LoginForm({ onSwitch, onSuccess }) {
         type={showPw ? "text" : "password"}
         placeholder="Enter your password"
         value={formData.password}
-        onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
+        onChange={(e) =>
+          setFormData((prev) => ({ ...prev, password: e.target.value }))
+        }
         error={errors.password}
         rightIcon={
           <span onClick={() => setShowPw((s) => !s)}>

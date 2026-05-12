@@ -1,15 +1,6 @@
-import {
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
+import { useEffect, useState, useMemo, useRef } from "react";
 
-} from "react";
-
-import {
-  useLocation,
-
-} from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -22,50 +13,39 @@ import {
   getSitesByDomain,
 } from "../api";
 
-import {
-  setMetaDataSettings,
-  setSiteDetails,
-} from "../redux/slices/siteSlice";
+import { setMetaDataSettings, setSiteDetails } from "../redux/slices/siteSlice";
 
 import { fetchNetworkDetails } from "../redux/slices/networkSlice";
 
-import { getUserId } from "../utils/helper/commonSelectors";
 
 
-export default function Layout(   {children}) {
+export default function Layout({ children }) {
   const location = useLocation();
 
   const dispatch = useDispatch();
 
   const mountedRef = useRef(true);
 
-
-
   // HIDE NAVBAR/BOTTOMNAV
   const hideLayout =
     location.pathname === "/login" ||
     location.pathname === "/Login" ||
     location.pathname === "/signup" ||
-    location.pathname === "/Signup";
+    location.pathname === "/profile" ||
+    location.pathname === "/game-lobby";
 
   // LOCAL STORAGE HYDRATE
   const [siteDetails, setSiteDetailsState] = useState(() => {
     try {
-      return JSON.parse(
-        localStorage.getItem("siteDetails")
-      ) || {};
+      return JSON.parse(localStorage.getItem("siteDetails")) || {};
     } catch {
       return {};
     }
   });
 
-  const [SelectedRouter, setSelectedRouter] =
-    useState(null);
+  const [SelectedRouter, setSelectedRouter] = useState(null);
 
-  const domainName = useMemo(
-    () => window.location.host,
-    []
-  );
+  const domainName = useMemo(() => window.location.host, []);
 
   // ================= PRELOAD ROUTER =================
 
@@ -88,10 +68,7 @@ export default function Layout(   {children}) {
           setSelectedRouter(router);
         }
       } catch (err) {
-        console.error(
-          "Router preload failed:",
-          err
-        );
+        console.error("Router preload failed:", err);
       }
     };
 
@@ -106,19 +83,13 @@ export default function Layout(   {children}) {
 
   const fetchSiteMetaData = async (siteID) => {
     try {
-      const response =
-        await getSiteMetaData(siteID);
+      const response = await getSiteMetaData(siteID);
 
       if (response.success && response.data) {
-        dispatch(
-          setMetaDataSettings(response.data)
-        );
+        dispatch(setMetaDataSettings(response.data));
       }
     } catch (err) {
-      console.error(
-        "Failed to fetch metadata:",
-        err
-      );
+      console.error("Failed to fetch metadata:", err);
     }
   };
 
@@ -129,45 +100,29 @@ export default function Layout(   {children}) {
 
     const fetchInitial = async () => {
       try {
-        const response =
-          await getSitesByDomain(domainName);
+        const response = await getSitesByDomain(domainName);
 
-        const details =
-          response?.data?.siteDetails;
+        const details = response?.data?.siteDetails;
 
         if (details && mountedRef.current) {
           dispatch(setSiteDetails(details));
 
           setSiteDetailsState(details);
 
-          localStorage.setItem(
-            "siteDetails",
-            JSON.stringify(details)
-          );
+          localStorage.setItem("siteDetails", JSON.stringify(details));
 
           await fetchSiteMetaData(details?._id);
 
-          if (
-            details?.meta_data?.metaPixelId
-          ) {
-            if (
-              window.__LOADED_PIXEL_ID__ !==
-              details.meta_data.metaPixelId
-            ) {
-              loadMetaPixel(
-                details.meta_data.metaPixelId
-              );
+          if (details?.meta_data?.metaPixelId) {
+            if (window.__LOADED_PIXEL_ID__ !== details.meta_data.metaPixelId) {
+              loadMetaPixel(details.meta_data.metaPixelId);
 
-              window.__LOADED_PIXEL_ID__ =
-                details.meta_data.metaPixelId;
+              window.__LOADED_PIXEL_ID__ = details.meta_data.metaPixelId;
             }
           }
         }
       } catch (err) {
-        console.error(
-          "Site fetch failed:",
-          err
-        );
+        console.error("Site fetch failed:", err);
       }
     };
 
@@ -188,50 +143,31 @@ export default function Layout(   {children}) {
     const startRefresh = () => {
       const refresh = async () => {
         try {
-          const response =
-            await getRefreshSitesByDomain(
-              domainName
-            );
+          const response = await getRefreshSitesByDomain(domainName);
 
-          const details =
-            response?.data?.siteDetails;
+          const details = response?.data?.siteDetails;
 
           if (details && active) {
-            dispatch(
-              setSiteDetails(details)
-            );
+            dispatch(setSiteDetails(details));
 
             setSiteDetailsState(details);
 
-            localStorage.setItem(
-              "siteDetails",
-              JSON.stringify(details)
-            );
+            localStorage.setItem("siteDetails", JSON.stringify(details));
           }
         } catch (err) {
-          console.error(
-            "Refresh failed:",
-            err
-          );
+          console.error("Refresh failed:", err);
         }
       };
 
       refresh();
 
-      intervalId = setInterval(
-        refresh,
-        900000
-      );
+      intervalId = setInterval(refresh, 900000);
     };
 
     if (document.readyState === "complete") {
       startRefresh();
     } else {
-      window.addEventListener(
-        "load",
-        startRefresh,
-        { once: true }
-      );
+      window.addEventListener("load", startRefresh, { once: true });
     }
 
     return () => {
@@ -241,10 +177,7 @@ export default function Layout(   {children}) {
         clearInterval(intervalId);
       }
 
-      window.removeEventListener(
-        "load",
-        startRefresh
-      );
+      window.removeEventListener("load", startRefresh);
     };
   }, [dispatch, domainName]);
 
@@ -271,7 +204,7 @@ export default function Layout(   {children}) {
 
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.03)_1px,transparent_1px)] bg-[size:100%_60px]" />
       </div>
-   {children}
+      {children}
 
       {/* BOTTOM NAV */}
       {!hideLayout && <BottomNav />}
