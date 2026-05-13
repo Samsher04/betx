@@ -11,6 +11,7 @@ import GameLobby from "./pages/GameLobby";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
 import Statement from "./pages/Statement";
+import Casino from "./pages/Casino";
 
 export default function App() {
   return (
@@ -24,7 +25,8 @@ export default function App() {
         <Route path="/game-lobby" element={<GameLobby />} />
         <Route path="/deposit" element={<Deposit />} />
         <Route path="/withdraw" element={<Withdraw />} />
-         <Route path="/transactions" element={< Statement/>} />
+        <Route path="/transactions" element={<Statement />} />
+        <Route path="/vip" element={<Casino />} />
       </Routes>
     </Layout>
   );
