@@ -71,6 +71,15 @@ const ORIGINALS = [
 ];
 
 const SLOTS = [
+    {
+    title: "Teen Patti",
+    gameId: "EVO-teenpatti",
+    rtp: "95.8%",
+    rating: "4.7",
+    tag: "HOT",
+    tagColor: "#ef4444",
+    img: "https://client.qtlauncher.com/images/?id=EVO-teenpatti_en_US&type=banner&version=1657611668715",
+  },
   {
     title: "D Blackjack",
     gameId: "SAG-dblackjack",
@@ -98,15 +107,7 @@ const SLOTS = [
     tagColor: "#ef4444",
     img: "https://client.qtlauncher.com/images/?id=EZU-baccarat_en_US&type=banner&version=1716211285150",
   },
-    {
-    title: "Teen Patti",
-    gameId: "EVO-teenpatti",
-    rtp: "95.8%",
-    rating: "4.7",
-    tag: "HOT",
-    tagColor: "#ef4444",
-    img: "https://client.qtlauncher.com/images/?id=EVO-teenpatti_en_US&type=banner&version=1657611668715",
-  },
+  
 ];
 
 const AVIATOR_GAME_ID = "SPB-aviator";
