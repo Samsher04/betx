@@ -10,14 +10,6 @@ const menuItems = [
     sub: "Deposit & withdrawal history",
     route: "/transactions",
   },
-  {
-    icon: <IoPerson size={17} />,
-    iconBg: "rgba(59,130,246,0.1)",
-    iconColor: "#60a5fa",
-    title: "Edit Profile",
-    sub: "Name, mobile, password",
-    route: "/edit-profile",
-  },
  
 
 ];
