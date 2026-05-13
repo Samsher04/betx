@@ -12,15 +12,17 @@ import {
   getSiteMetaData,
   getSitesByDomain,
 } from "../api";
+import { getUserId } from "../utils/helper/commonSelectors";
 
 import { setMetaDataSettings, setSiteDetails } from "../redux/slices/siteSlice";
 
 import { fetchNetworkDetails } from "../redux/slices/networkSlice";
-
-
+import { subscribeToJoinProfileRoom } from "../socketClient";
 
 export default function Layout({ children }) {
   const location = useLocation();
+
+  const loggedInUserId = useSelector(getUserId());
 
   const dispatch = useDispatch();
 
@@ -42,8 +44,6 @@ export default function Layout({ children }) {
       return {};
     }
   });
-
-  const [SelectedRouter, setSelectedRouter] = useState(null);
 
   const domainName = useMemo(() => window.location.host, []);
 
@@ -192,6 +192,12 @@ export default function Layout({ children }) {
 
     return () => clearInterval(id);
   }, [dispatch]);
+
+  useEffect(() => {
+    if (loggedInUserId) {
+      subscribeToJoinProfileRoom(loggedInUserId);
+    }
+  }, [loggedInUserId]);
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#020702] text-white">

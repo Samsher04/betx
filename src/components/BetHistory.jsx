@@ -22,7 +22,7 @@ function formatYYYYMMDD(date) {
 
 function istDateToUTCZ(dateStr, h, m, s) {
   const ist = new Date(
-    `${dateStr}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}+05:30`
+    `${dateStr}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}+05:30`,
   );
   return ist.toISOString();
 }
@@ -81,14 +81,10 @@ export default function BetHistory({ sport, betStatus }) {
           setBetHistory(
             bets.map((bet) => {
               const status = bet.betStatus; // "win" | "loss"
-           const displayAmount =
-  status === "win"
-    ? `+₹${Number(
-        bet.favourMargin || 0
-      ).toFixed(2)}`
-    : `-₹${Number(
-        bet.againstMargin || 0
-      ).toFixed(2)}`;
+              const displayAmount =
+                status === "win"
+                  ? `+₹${Number(bet.favourMargin || 0).toFixed(2)}`
+                  : `-₹${Number(bet.againstMargin || 0).toFixed(2)}`;
 
               return {
                 id: bet._id,
@@ -103,7 +99,7 @@ export default function BetHistory({ sport, betStatus }) {
                 status,
                 amount: displayAmount,
               };
-            })
+            }),
           );
 
           if (pagination) {
@@ -124,7 +120,7 @@ export default function BetHistory({ sport, betStatus }) {
         if (reqId === latestRequestIdRef.current) setLoading(false);
       }
     },
-    [sport, betStatus, startDate, endDate] // currentPage NOT in deps
+    [sport, betStatus, startDate, endDate], // currentPage NOT in deps
   );
 
   useEffect(() => {
@@ -208,12 +204,9 @@ export default function BetHistory({ sport, betStatus }) {
                   className="font-rajdhani text-[14px] font-bold"
                   style={{ color: STATUS_COLOR[bet.status] ?? "#888" }}
                 >
-           {bet.amount}
+                  {bet.amount}
                 </p>
-                <p
-                  className="text-[11px] mt-0.5"
-                  style={{ color: `#f87171` }}
-                >
+                <p className="text-[11px] mt-0.5" style={{ color: `#f87171` }}>
                   ₹{bet.stake}
                 </p>
               </div>
