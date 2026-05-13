@@ -275,7 +275,7 @@ export default function Statement({ sport, dataSource="Old Data" }) {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div
-      className="min-h-screen px-4 pt-5 pb-10"
+      className="min-h-screen px-4 pt-5 pb-32"
       style={{
         background: "linear-gradient(160deg,#0f0c03,#1a1505 50%,#0d0d0d)",
         fontFamily: "'DM Sans',sans-serif",
