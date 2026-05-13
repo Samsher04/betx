@@ -1,45 +1,48 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { RiFireFill, RiLiveFill, RiVipCrown2Fill } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { launcherUrl, updateCasinoBalance } from "../api";
+import { isMobile } from "react-device-detect";
+import { showToast } from "../utils/ToastContent";
+import {
+  updateAvailableBalance,
+  updateUserCasinoBalance,
+} from "../redux/slices/userSlice";
 
 const GAMES = [
   {
-    title: "",
+    title: "SPB-aviator",
     image:
       "https://client.qtlauncher.com/images/?id=SPB-aviator_en_US&type=logo-square&version=1717639255289",
     badge: "HOT",
     color: "#f59e0b",
   },
   {
-    title: "",
+    title: "GLX-towerrush",
+    image:
+      "https://play-lh.googleusercontent.com/swtLo6soJ2JxqtIUSwBYnY_8peeoLozHU9MsahZJB5WRf9RFlmOncG4T9aZsqvXF7ZuH_Cv6SPDndF9VKCJg=w240-h480-rw",
+    badge: "INDIA",
+    color: "#f97316",
+  },
+  {
+    title: "EVP-magicwheel",
     image:
       "https://client.qtlauncher.com/images/?id=JIL-wheel_en_US&type=logo-square&version=1735483781169",
     badge: "LIVE",
     color: "#ef4444",
   },
+
   {
-    title: "",
-    image:
-      "https://client.qtlauncher.com/images/?id=JIL-teenpatti_en_US&type=logo-square&version=1735484924247",
-    badge: "VIP",
-    color: "#22c55e",
-  },
-  {
-    title: "",
-    image:
-      "https://client.qtlauncher.com/images/?id=JIL-7up7down_en_US&type=logo-square&version=1735056385975",
-    badge: "TRENDING",
-    color: "#a855f7",
-  },
-  {
-    title: "Crash X",
+    title: "TRB-crashx",
     image:
       "https://client.qtlauncher.com/images/?id=TRB-crashx_en_US&type=logo-square&version=1689793154196",
     badge: "NEW",
     color: "#06b6d4",
   },
   {
-    title: "Mines",
+    title: "TRB-mines",
     image:
       "https://client.qtlauncher.com/images/?id=TRB-mines_en_US&type=logo-square&version=1689799362324",
     badge: "INDIA",
@@ -54,15 +57,7 @@ const GAMES = [
     color: "#f97316",
   },
 
-    {
-    title: "GLX-towerrush",
-    image:
-      "https://play-lh.googleusercontent.com/swtLo6soJ2JxqtIUSwBYnY_8peeoLozHU9MsahZJB5WRf9RFlmOncG4T9aZsqvXF7ZuH_Cv6SPDndF9VKCJg=w240-h480-rw",
-    badge: "INDIA",
-    color: "#f97316",
-  },
-
-      {
+  {
     title: "SMS-jetx",
     image:
       "https://imagedelivery.net/Vd-cIddpsfJ7XHHMXJuIbA/b2bfdaef-9ab6-497f-fc44-ab8d31c34e00/width=640,height=426",
@@ -70,12 +65,26 @@ const GAMES = [
     color: "#f97316",
   },
 
-        {
+  {
     title: "GLX-cashshow",
-    image:
-      "https://netcontent.cc/raceupcasino/i/s3/galaxsys/CashShow.webp",
+    image: "https://netcontent.cc/raceupcasino/i/s3/galaxsys/CashShow.webp",
     badge: "INDIA",
     color: "#f97316",
+  },
+
+  {
+    title: "EZU-lucky7",
+    image:
+      "https://games.evolution.com/wp-content/uploads/2024/01/lucky_7_600.png",
+    badge: "TRENDING",
+    color: "#a855f7",
+  },
+  {
+    title: "EZU-teenpatti",
+    image:
+      "https://client.qtlauncher.com/images/?id=JIL-teenpatti_en_US&type=logo-square&version=1735484924247",
+    badge: "VIP",
+    color: "#22c55e",
   },
 ];
 
@@ -86,6 +95,79 @@ const getBadgeIcon = (badge) => {
 };
 
 const Casino = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userData = useSelector((state) => state?.user?.userData);
+  const loginType = useSelector((state) => state.user.loggedInType);
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+  const siteCasinoData = useSelector((state) => state.siteCasino);
+
+  const handlePlayClick = async (item) => {
+    if (loginType == "") {
+      navigate(`/login`);
+      return;
+    } else if (loginType == "demo") {
+      showToast.error("login with real id");
+      return;
+    }
+
+    let amount = userData?.availableBalance - userData?.exposure || 0;
+    let siteCasinoBalance = siteCasinoData?.casinoBalance || 0;
+    let finalAmountToDeduct = Math.min(amount, siteCasinoBalance);
+
+    if (
+      finalAmountToDeduct === 0 &&
+      (!userData?.casinoBalance || userData?.casinoBalance <= 0)
+    ) {
+      showToast.warning("Insufficient balance");
+      return;
+    }
+
+    try {
+      // setLoading(true);
+      const response = await updateCasinoBalance({
+        CasinoBalance: finalAmountToDeduct,
+      });
+
+      dispatch(updateAvailableBalance(response.data.user.availableBalance));
+      dispatch(updateUserCasinoBalance(response.data.user.casinoBalance));
+    } catch (error) {
+      console.error("error", error.response?.data?.message);
+    } finally {
+      // setLoading(false);
+    }
+
+    const data = {
+      gameId: item.gameId,
+      playerId: userData?._id || "",
+      displayName: userData?.casinoDisplayName || "",
+      currency: "INR",
+      country: "IN",
+      gender: "M",
+      birthDate: "1996-10-12",
+      mode: isLoggedIn ? "real" : "demo",
+      device: isMobile ? "mobile" : "desktop",
+      returnUrl: window.location.href,
+      walletSessionId: userData?.sessionToken || "",
+    };
+
+    try {
+      const res = await launcherUrl(data);
+
+      if (res?.success && res?.data?.url) {
+        const gameUrl = encodeURIComponent(res.data.url);
+        navigate(`/game-lobby?gameId=${gameUrl}`);
+      } else {
+        console.error("Launcher URL request failed", res);
+      }
+    } catch (error) {
+      console.error(
+        "Error launching Aviator:",
+        error?.response?.data?.message || error.message,
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen px-4 pt-5 pb-28 bg-[#020702] text-white overflow-hidden">
       {/* TOP */}
@@ -140,6 +222,7 @@ const Casino = () => {
       <div className="grid grid-cols-2 gap-4">
         {GAMES.map((game, i) => (
           <motion.div
+            onClick={() => handlePlayClick({ gameId: game.title })}
             key={game.title}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -172,25 +255,10 @@ const Casino = () => {
                 background: `${game.color}18`,
                 border: `1px solid ${game.color}40`,
               }}
-            >
-              <span style={{ color: game.color }}>
-                {getBadgeIcon(game.badge)}
-              </span>
-
-              <span
-                className="text-[9px] font-black tracking-[2px]"
-                style={{ color: game.color }}
-              >
-                {game.badge}
-              </span>
-            </div>
+            ></div>
 
             {/* TITLE */}
             <div className="absolute bottom-4 left-4 right-4">
-              <h3 className="text-[24px] font-black leading-none drop-shadow-2xl">
-                {game.title}
-              </h3>
-
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-[11px] text-white/55 font-semibold tracking-wide">
                   24K Players

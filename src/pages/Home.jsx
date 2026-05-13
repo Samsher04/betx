@@ -12,14 +12,13 @@ import {
   updateAvailableBalance,
   updateUserCasinoBalance,
 } from "../redux/slices/userSlice";
-import { toast } from "react-toastify";
 import { isMobile } from "react-device-detect";
 import { showToast } from "../utils/ToastContent";
 
 const LIVE_GAMES = [
   {
-    title: "CRASH",
-    gameId: "crash_v1",
+    title: "Aviator",
+    gameId: "SPB-aviator",
     players: "12.4K",
     multiplier: "4.52x",
     icon: "🚀",
@@ -30,8 +29,8 @@ const LIVE_GAMES = [
     trending: true,
   },
   {
-    title: "DICE",
-    gameId: "dice_v1",
+    title: "Ludo",
+    gameId: "JIL-ludoquick",
     players: "8.2K",
     multiplier: "2.1x",
     icon: "🎲",
@@ -45,25 +44,25 @@ const LIVE_GAMES = [
 
 const ORIGINALS = [
   {
-    title: "HILO",
-    gameId: "hilo_v1",
-    icon: "🃏",
+    title: "Tower Rush",
+    gameId: "GLX-towerrush",
+    icon: "🗼",
     color: "#a78bfa",
     bg: "from-violet-900/80 to-purple-900/80",
     border: "#7c3aed",
   },
   {
-    title: "MINES",
-    gameId: "mines_v1",
-    icon: "💣",
+    title: "Chicken Road",
+    gameId: "EVP-uncrossablerush",
+    icon: "🐔",
     color: "#f472b6",
     bg: "from-pink-900/80 to-rose-900/80",
     border: "#be185d",
   },
   {
-    title: "PLINKO",
-    gameId: "plinko_v1",
-    icon: "🎯",
+    title: "Magic Wheel",
+    gameId: "EVP-magicwheel",
+    icon: "🎡",
     color: "#38bdf8",
     bg: "from-sky-900/80 to-cyan-900/80",
     border: "#0284c7",
@@ -71,7 +70,7 @@ const ORIGINALS = [
 ];
 
 const SLOTS = [
-    {
+  {
     title: "Teen Patti",
     gameId: "EVO-teenpatti",
     rtp: "95.8%",
@@ -107,7 +106,6 @@ const SLOTS = [
     tagColor: "#ef4444",
     img: "https://client.qtlauncher.com/images/?id=EZU-baccarat_en_US&type=banner&version=1716211285150",
   },
-  
 ];
 
 const AVIATOR_GAME_ID = "SPB-aviator";
@@ -133,7 +131,7 @@ function PulsingDot({ color = "#22c55e" }) {
   );
 }
 
-function SectionTitle({ title, icon, accent = "#f59e0b" }) {
+function SectionTitle({ title, icon, accent = "#f59e0b" , onClick, }) {
   return (
     <div className="flex items-center justify-between mt-8 mb-4">
       <div className="flex items-center gap-3">
@@ -149,6 +147,7 @@ function SectionTitle({ title, icon, accent = "#f59e0b" }) {
         </h2>
       </div>
       <button
+   onClick={onClick}
         className="text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all duration-300 hover:scale-105"
         style={{
           color: accent,
@@ -162,7 +161,7 @@ function SectionTitle({ title, icon, accent = "#f59e0b" }) {
   );
 }
 
-function LiveGameCard({ game, i }) {
+function LiveGameCard({ game, i, handlePlayClick }) {
   const [multiplier, setMultiplier] = useState(parseFloat(game.multiplier));
   useEffect(() => {
     const t = setInterval(() => {
@@ -173,6 +172,7 @@ function LiveGameCard({ game, i }) {
 
   return (
     <motion.div
+      onClick={() => handlePlayClick({ gameId: game.gameId })}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: i * 0.15 }}
@@ -227,7 +227,7 @@ function LiveGameCard({ game, i }) {
         key={multiplier}
         animate={{ scale: [1.1, 1] }}
         transition={{ duration: 0.2 }}
-        className="text-3xl font-black mt-1"
+        className="text-[17px] font-black mt-1"
         style={{ color: game.color, textShadow: `0 0 20px ${game.color}` }}
       >
         {multiplier.toFixed(2)}x
@@ -306,9 +306,10 @@ function WinnersTicket() {
   );
 }
 
-function OriginalCard({ item, i }) {
+function OriginalCard({ item, i, handlePlayClick }) {
   return (
     <motion.div
+      onClick={() => handlePlayClick({ gameId: item.gameId })}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: i * 0.1 }}
@@ -347,7 +348,7 @@ function OriginalCard({ item, i }) {
   );
 }
 
-function SlotCard({ slot, i }) {
+function SlotCard({ slot, i, handlePlayClick }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -397,6 +398,7 @@ function SlotCard({ slot, i }) {
             {slot.title}
           </h3>
           <motion.button
+            onClick={() => handlePlayClick({ gameId: slot.gameId })}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="mt-2 text-xs font-bold px-4 py-1.5 rounded-xl"
@@ -424,6 +426,7 @@ export default function Home() {
 
   const handlePlayClick = async (item) => {
     if (loginType == "") {
+      navigate(`/login`);
       return;
     } else if (loginType == "demo") {
       showToast.error("login with real id");
@@ -772,26 +775,41 @@ export default function Home() {
         </div>
 
         {/* LIVE GAMES */}
-        <SectionTitle title="Live Games" icon="🔴" accent="#ef4444" />
+        <SectionTitle title="Live Games" icon="🔴" accent="#ef4444"  onClick={() => navigate("/vip")}/>
         <div className="grid grid-cols-2 gap-3">
           {LIVE_GAMES.map((game, i) => (
-            <LiveGameCard key={i} game={game} i={i} />
+            <LiveGameCard
+              key={i}
+              game={game}
+              i={i}
+              handlePlayClick={handlePlayClick}
+            />
           ))}
         </div>
 
         {/* ORIGINALS */}
-        <SectionTitle title="BetX Originals" icon="👑" accent="#f59e0b" />
+        <SectionTitle title="BetX Originals" icon="👑" accent="#f59e0b"  onClick={() => navigate("/vip")}/>
         <div className="grid grid-cols-3 gap-3">
           {ORIGINALS.map((item, i) => (
-            <OriginalCard key={i} item={item} i={i} />
+            <OriginalCard
+              key={i}
+              item={item}
+              i={i}
+              handlePlayClick={handlePlayClick}
+            />
           ))}
         </div>
 
         {/* SLOTS */}
-        <SectionTitle title="Popular Slots" icon="🎰" accent="#a78bfa" />
+        <SectionTitle title="Popular Slots" icon="🎰" accent="#a78bfa"  onClick={() => navigate("/vip")}/>
         <div className="space-y-3">
           {SLOTS.map((slot, i) => (
-            <SlotCard key={i} slot={slot} i={i} />
+            <SlotCard
+              key={i}
+              slot={slot}
+              i={i}
+              handlePlayClick={handlePlayClick}
+            />
           ))}
         </div>
 
