@@ -8,7 +8,10 @@ import { launcherUrl, updateCasinoBalance } from "../api";
 import { RiPlayFill, RiVipCrown2Fill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { updateAvailableBalance, updateUserCasinoBalance } from "../redux/slices/userSlice";
+import {
+  updateAvailableBalance,
+  updateUserCasinoBalance,
+} from "../redux/slices/userSlice";
 import { toast } from "react-toastify";
 import { isMobile } from "react-device-detect";
 import { showToast } from "../utils/ToastContent";
@@ -474,6 +477,20 @@ export default function Home() {
     }
   };
 
+  const [onlinePlayers, setOnlinePlayers] = useState(24891);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOnlinePlayers((prev) => {
+        const change = Math.floor(Math.random() * 120) - 40;
+
+        return Math.max(20000, prev + change);
+      });
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div
       className="relative min-h-screen overflow-hidden text-white"
@@ -605,7 +622,7 @@ export default function Home() {
 
               {/* BUTTON */}
               <motion.button
-              onClick={() => handlePlayClick({ gameId: AVIATOR_GAME_ID })}
+                onClick={() => handlePlayClick({ gameId: AVIATOR_GAME_ID })}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="mt-5 px-5 py-3 rounded-2xl flex items-center gap-2 text-sm font-black tracking-wide"
@@ -652,7 +669,7 @@ export default function Home() {
           {[
             {
               label: "Online Players",
-              value: "24,891",
+              value: onlinePlayers.toLocaleString(),
               icon: RiTeamFill,
               color: "#f59e0b",
               glow: "rgba(245,158,11,0.35)",
@@ -661,9 +678,9 @@ export default function Home() {
               label: "Add Funds",
               value: "Deposit",
               icon: RiLuggageDepositFill,
-
               color: "#22c55e",
               glow: "rgba(34,197,94,0.35)",
+              path: "/deposit",
             },
             {
               label: "Withdraw Funds",
@@ -671,6 +688,7 @@ export default function Home() {
               icon: PiHandWithdrawFill,
               color: "#ef4444",
               glow: "rgba(239,68,68,0.35)",
+              path: "/withdraw",
             },
           ].map((stat, i) => {
             const Icon = stat.icon;
@@ -681,12 +699,17 @@ export default function Home() {
                   y: -4,
                   scale: 1.03,
                 }}
+                whileTap={{
+                  scale: 0.97,
+                }}
+                onClick={() => stat.path && navigate(stat.path)}
                 key={i}
                 className="relative overflow-hidden rounded-[22px] p-4 text-center"
                 style={{
                   background: `${stat.color}10`,
                   border: `1px solid ${stat.color}25`,
                   backdropFilter: "blur(14px)",
+                  cursor: stat.path ? "pointer" : "default",
                 }}
               >
                 {/* TOP LIGHT */}

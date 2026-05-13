@@ -8,6 +8,8 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import GameLobby from "./pages/GameLobby";
+import Deposit from "./pages/Deposit";
+import Withdraw from "./pages/Withdraw";
 
 export default function App() {
   return (
@@ -19,6 +21,8 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/game-lobby" element={<GameLobby />} />
+                <Route path="/deposit" element={<Deposit />} />
+                                <Route path="/withdraw" element={<Withdraw />} />
       </Routes>
     </Layout>
   );
