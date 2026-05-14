@@ -1,15 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { IoWallet } from "react-icons/io5";
-import { getCasinoBalance } from "../api";
+import { IoRefresh, IoWallet } from "react-icons/io5";
+import { getCasinoBalance, ReCallCasinoBalance } from "../api";
 import { updateSiteCasinoSlice } from "../redux/slices/siteCasinoSlice";
 
+import { selectDomainID, selectSite } from "../utils/helper/commonSelectors";
 import {
-  selectDomainID,
-  selectSite,
-} from "../utils/helper/commonSelectors";
+  updateAvailableBalance,
+  updateUserCasinoBalance,
+} from "../redux/slices/userSlice";
 
 const Navbar = () => {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
@@ -17,7 +18,7 @@ const Navbar = () => {
   const siteDetails = useSelector(selectSite());
   const domainId = useSelector(selectDomainID());
   const exposure = Number(userData?.exposure || 0);
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const availableBalance = Number(userData.availableBalance - exposure || 0);
 
@@ -36,6 +37,23 @@ const Navbar = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const [isRecalling, setIsRecalling] = useState(false);
+
+  const handlereCall = async () => {
+    setIsRecalling(true);
+    try {
+        const response = await ReCallCasinoBalance({
+        CasinoBalance: userData?.casinoBalance,
+      });
+      dispatch(updateAvailableBalance(response.data.user.availableBalance));
+      dispatch(updateUserCasinoBalance(response.data.user.casinoBalance));
+    } catch (error) {
+      console.error("Error recalling balance:", error);
+    } finally {
+      setIsRecalling(false);
+    }
+  };
   return (
     <div className="px-4">
       <motion.div
@@ -60,21 +78,41 @@ const Navbar = () => {
         </div>
 
         {isLoggedIn ? (
-          <button
-            className="flex items-center gap-1.5 px-3 h-[28px] rounded-[8px] text-[12px] font-bold tracking-wide"
-            style={{
-              background: "rgba(251,191,36,0.08)",
-              border: "0.5px solid rgba(251,191,36,0.25)",
-              color: "#fbbf24",
-            }}
-          >
-            <IoWallet size={13} />
-            <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>
-              INR
-            </span>
-            <span style={{ color: "rgba(255,255,255,0.15)" }}>|</span>
-            <span>{availableBalance?.toFixed(2)}</span>
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              className="flex items-center gap-1.5 px-3 h-[28px] rounded-[8px] text-[12px] font-bold tracking-wide"
+              style={{
+                background: "rgba(251,191,36,0.08)",
+                border: "0.5px solid rgba(251,191,36,0.25)",
+                color: "#fbbf24",
+              }}
+            >
+              <IoWallet size={13} />
+              <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>
+                INR
+              </span>
+              <span style={{ color: "rgba(255,255,255,0.15)" }}>|</span>
+              <span>{availableBalance?.toFixed(2)}</span>
+            </button>
+            <button
+              onClick={handlereCall}
+              disabled={isRecalling}
+              className="flex items-center justify-center h-[28px] w-[28px] rounded-[8px]"
+              style={{
+                background: "rgba(251,191,36,0.08)",
+                border: "0.5px solid rgba(251,191,36,0.25)",
+                color: "#fbbf24",
+                opacity: isRecalling ? 0.7 : 1,
+              }}
+            >
+              <IoRefresh
+                size={13}
+                style={{
+                  animation: isRecalling ? "spin 0.7s linear infinite" : "none",
+                }}
+              />
+            </button>
+          </div>
         ) : (
           <Link to="/login">
             <button

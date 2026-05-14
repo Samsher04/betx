@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 export default function ProfileHeader() {
   const userData = useSelector((state) => state?.user?.userData) || {};
-  console.log({userData});
+
   
 
 const getInitials = (name = "") => {

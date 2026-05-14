@@ -15,50 +15,57 @@ import {
 const GAMES = [
   {
     title: "SPB-aviator",
-    image: "https://client.qtlauncher.com/images/?id=SPB-aviator_en_US&type=logo-square&version=1717639255289",
+    image:
+      "https://client.qtlauncher.com/images/?id=SPB-aviator_en_US&type=logo-square&version=1717639255289",
     badge: "HOT",
     color: "#f59e0b",
     basePlayers: 24000,
   },
   {
     title: "EVP-uncrossablerush",
-    image: "https://store-images.s-microsoft.com/image/apps.1626.14309466327337509.d2f79b81-de80-4931-aaaf-211eed56244f.d56cd67e-094e-4bb0-9771-c79972acdbb1",
+    image:
+      "https://store-images.s-microsoft.com/image/apps.1626.14309466327337509.d2f79b81-de80-4931-aaaf-211eed56244f.d56cd67e-094e-4bb0-9771-c79972acdbb1",
     badge: "INDIA",
     color: "#f97316",
     basePlayers: 12300,
   },
   {
     title: "GLX-towerrush",
-    image: "https://play-lh.googleusercontent.com/swtLo6soJ2JxqtIUSwBYnY_8peeoLozHU9MsahZJB5WRf9RFlmOncG4T9aZsqvXF7ZuH_Cv6SPDndF9VKCJg=w240-h480-rw",
+    image:
+      "https://play-lh.googleusercontent.com/swtLo6soJ2JxqtIUSwBYnY_8peeoLozHU9MsahZJB5WRf9RFlmOncG4T9aZsqvXF7ZuH_Cv6SPDndF9VKCJg=w240-h480-rw",
     badge: "INDIA",
     color: "#f97316",
     basePlayers: 18500,
   },
   {
     title: "EVP-magicwheel",
-    image: "https://client.qtlauncher.com/images/?id=JIL-wheel_en_US&type=logo-square&version=1735483781169",
+    image:
+      "https://client.qtlauncher.com/images/?id=JIL-wheel_en_US&type=logo-square&version=1735483781169",
     badge: "LIVE",
     color: "#ef4444",
     basePlayers: 31200,
   },
   {
     title: "TRB-crashx",
-    image: "https://client.qtlauncher.com/images/?id=TRB-crashx_en_US&type=logo-square&version=1689793154196",
+    image:
+      "https://client.qtlauncher.com/images/?id=TRB-crashx_en_US&type=logo-square&version=1689793154196",
     badge: "NEW",
     color: "#06b6d4",
     basePlayers: 9800,
   },
   {
     title: "TRB-mines",
-    image: "https://client.qtlauncher.com/images/?id=TRB-mines_en_US&type=logo-square&version=1689799362324",
+    image:
+      "https://client.qtlauncher.com/images/?id=TRB-mines_en_US&type=logo-square&version=1689799362324",
     badge: "INDIA",
     color: "#f97316",
     basePlayers: 15600,
   },
-  
+
   {
     title: "SMS-jetx",
-    image: "https://imagedelivery.net/Vd-cIddpsfJ7XHHMXJuIbA/b2bfdaef-9ab6-497f-fc44-ab8d31c34e00/width=640,height=426",
+    image:
+      "https://imagedelivery.net/Vd-cIddpsfJ7XHHMXJuIbA/b2bfdaef-9ab6-497f-fc44-ab8d31c34e00/width=640,height=426",
     badge: "INDIA",
     color: "#f97316",
     basePlayers: 21000,
@@ -72,14 +79,16 @@ const GAMES = [
   },
   {
     title: "EZU-lucky7",
-    image: "https://games.evolution.com/wp-content/uploads/2024/01/lucky_7_600.png",
+    image:
+      "https://games.evolution.com/wp-content/uploads/2024/01/lucky_7_600.png",
     badge: "TRENDING",
     color: "#a855f7",
     basePlayers: 27400,
   },
   {
     title: "EZU-teenpatti",
-    image: "https://client.qtlauncher.com/images/?id=JIL-teenpatti_en_US&type=logo-square&version=1735484924247",
+    image:
+      "https://client.qtlauncher.com/images/?id=JIL-teenpatti_en_US&type=logo-square&version=1735484924247",
     badge: "VIP",
     color: "#22c55e",
     basePlayers: 19200,
@@ -87,12 +96,36 @@ const GAMES = [
 ];
 
 const BADGE_COLORS = {
-  HOT: { bg: "rgba(245,158,11,0.15)", border: "rgba(245,158,11,0.4)", text: "#f59e0b" },
-  LIVE: { bg: "rgba(239,68,68,0.15)", border: "rgba(239,68,68,0.4)", text: "#ef4444" },
-  NEW: { bg: "rgba(6,182,212,0.15)", border: "rgba(6,182,212,0.4)", text: "#06b6d4" },
-  INDIA: { bg: "rgba(249,115,22,0.15)", border: "rgba(249,115,22,0.4)", text: "#f97316" },
-  TRENDING: { bg: "rgba(168,85,247,0.15)", border: "rgba(168,85,247,0.4)", text: "#a855f7" },
-  VIP: { bg: "rgba(34,197,94,0.15)", border: "rgba(34,197,94,0.4)", text: "#22c55e" },
+  HOT: {
+    bg: "rgba(245,158,11,0.15)",
+    border: "rgba(245,158,11,0.4)",
+    text: "#f59e0b",
+  },
+  LIVE: {
+    bg: "rgba(239,68,68,0.15)",
+    border: "rgba(239,68,68,0.4)",
+    text: "#ef4444",
+  },
+  NEW: {
+    bg: "rgba(6,182,212,0.15)",
+    border: "rgba(6,182,212,0.4)",
+    text: "#06b6d4",
+  },
+  INDIA: {
+    bg: "rgba(249,115,22,0.15)",
+    border: "rgba(249,115,22,0.4)",
+    text: "#f97316",
+  },
+  TRENDING: {
+    bg: "rgba(168,85,247,0.15)",
+    border: "rgba(168,85,247,0.4)",
+    text: "#a855f7",
+  },
+  VIP: {
+    bg: "rgba(34,197,94,0.15)",
+    border: "rgba(34,197,94,0.4)",
+    text: "#22c55e",
+  },
 };
 
 const getBadgeIcon = (badge) => {
@@ -111,10 +144,13 @@ const formatPlayers = (n) => {
 function useGamePlayers(basePlayers) {
   const [count, setCount] = useState(basePlayers);
   useEffect(() => {
-    const interval = setInterval(() => {
-      const delta = Math.floor(Math.random() * 80) - 30;
-      setCount((prev) => Math.max(5000, prev + delta));
-    }, 2500 + Math.random() * 1000);
+    const interval = setInterval(
+      () => {
+        const delta = Math.floor(Math.random() * 80) - 30;
+        setCount((prev) => Math.max(5000, prev + delta));
+      },
+      2500 + Math.random() * 1000,
+    );
     return () => clearInterval(interval);
   }, [basePlayers]);
   return count;
@@ -161,7 +197,9 @@ function GameCard({ game, index, onPlay }) {
       {/* Color tint overlay on hover */}
       <div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{ background: `radial-gradient(ellipse at center top, ${game.color}15, transparent 70%)` }}
+        style={{
+          background: `radial-gradient(ellipse at center top, ${game.color}15, transparent 70%)`,
+        }}
       />
 
       {/* Badge */}
@@ -174,7 +212,9 @@ function GameCard({ game, index, onPlay }) {
           backdropFilter: "blur(8px)",
         }}
       >
-        <span style={{ color: badgeStyle.text }}>{getBadgeIcon(game.badge)}</span>
+        <span style={{ color: badgeStyle.text }}>
+          {getBadgeIcon(game.badge)}
+        </span>
         <span
           style={{
             fontSize: 9,
@@ -227,7 +267,9 @@ function GameCard({ game, index, onPlay }) {
               boxShadow: `0 4px 20px ${game.color}55`,
             }}
           >
-            <span style={{ fontSize: 13, color: "#fff", marginLeft: 2 }}>▶</span>
+            <span style={{ fontSize: 13, color: "#fff", marginLeft: 2 }}>
+              ▶
+            </span>
           </motion.div>
         </div>
 
@@ -255,6 +297,7 @@ const Casino = () => {
   const loginType = useSelector((state) => state.user.loggedInType);
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const siteCasinoData = useSelector((state) => state.siteCasino);
+  const [isLaunching, setIsLaunching] = useState(false);
 
   // Total online players (sum-like ambient number)
   const [onlinePlayers, setOnlinePlayers] = useState(24000);
@@ -285,12 +328,16 @@ const Casino = () => {
       finalAmountToDeduct === 0 &&
       (!userData?.casinoBalance || userData?.casinoBalance <= 0)
     ) {
-      showToast.warning("Insufficient balance");
+      showToast.warning("Low balance");
       return;
     }
 
+    setIsLaunching(true);
+
     try {
-      const response = await updateCasinoBalance({ CasinoBalance: finalAmountToDeduct });
+      const response = await updateCasinoBalance({
+        CasinoBalance: finalAmountToDeduct,
+      });
       dispatch(updateAvailableBalance(response.data.user.availableBalance));
       dispatch(updateUserCasinoBalance(response.data.user.casinoBalance));
     } catch (error) {
@@ -318,14 +365,113 @@ const Casino = () => {
         navigate(`/game-lobby?gameId=${gameUrl}`);
       } else {
         console.error("Launcher URL request failed", res);
+        setIsLaunching(false);
       }
     } catch (error) {
-      console.error("Error launching game:", error?.response?.data?.message || error.message);
+      console.error(
+        "Error launching game:",
+        error?.response?.data?.message || error.message,
+      );
+      setIsLaunching(false);
     }
   };
 
   return (
-    <div
+  <>
+
+ <AnimatePresence>
+        {isLaunching && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9999,
+              background: "rgba(7,9,15,0.92)",
+              backdropFilter: "blur(12px)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 20,
+            }}
+          >
+            {/* Spinner ring */}
+            <div style={{ position: "relative", width: 72, height: 72 }}>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: "50%",
+                  border: "3px solid rgba(245,158,11,0.15)",
+                  borderTopColor: "#f59e0b",
+                  position: "absolute",
+                  inset: 0,
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <RiVipCrown2Fill size={26} color="#f59e0b" />
+              </div>
+            </div>
+
+            {/* Text */}
+            <div style={{ textAlign: "center" }}>
+              <p
+                style={{
+                  fontSize: 15,
+                  fontWeight: 800,
+                  color: "#fff",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                Launching Game
+              </p>
+              <p
+                style={{
+                  fontSize: 11,
+                  color: "rgba(255,255,255,0.35)",
+                  marginTop: 4,
+                  letterSpacing: "0.06em",
+                }}
+              >
+                Please wait...
+              </p>
+            </div>
+
+            {/* Animated dots */}
+            <div style={{ display: "flex", gap: 6 }}>
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  animate={{ opacity: [0.2, 1, 0.2], y: [0, -5, 0] }}
+                  transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: "#f59e0b",
+                  }}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div
       className="min-h-screen pb-28 overflow-hidden"
       style={{ background: "#07090f", color: "#fff" }}
     >
@@ -435,7 +581,10 @@ const Casino = () => {
           >
             <div
               className="w-1.5 h-1.5 rounded-full"
-              style={{ background: "#ef4444", animation: "pulse 1.5s infinite" }}
+              style={{
+                background: "#ef4444",
+                animation: "pulse 1.5s infinite",
+              }}
             />
             <span
               style={{
@@ -506,9 +655,7 @@ const Casino = () => {
       </div>
 
       {/* GAME GRID */}
-      <div
-        className="px-4 grid grid-cols-2 gap-3"
-      >
+      <div className="px-4 grid grid-cols-2 gap-3">
         {GAMES.map((game, i) => (
           <GameCard
             key={game.title}
@@ -519,6 +666,7 @@ const Casino = () => {
         ))}
       </div>
     </div>
+  </>
   );
 };
 

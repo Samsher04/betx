@@ -423,6 +423,7 @@ export default function Home() {
   const loginType = useSelector((state) => state.user.loggedInType);
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const siteCasinoData = useSelector((state) => state.siteCasino);
+    const [isLaunching, setIsLaunching] = useState(false);
 
   const handlePlayClick = async (item) => {
     if (loginType == "") {
@@ -441,9 +442,11 @@ export default function Home() {
       finalAmountToDeduct === 0 &&
       (!userData?.casinoBalance || userData?.casinoBalance <= 0)
     ) {
-      showToast.warning("Insufficient balance");
+      showToast.warning("Low balance");
       return;
     }
+
+        setIsLaunching(true);
 
     try {
       // setLoading(true);
@@ -455,10 +458,7 @@ export default function Home() {
       dispatch(updateUserCasinoBalance(response.data.user.casinoBalance));
     } catch (error) {
       console.error("error", error.response?.data?.message);
-    } finally {
-      // setLoading(false);
     }
-
     const data = {
       gameId: item.gameId,
       playerId: userData?._id || "",
@@ -487,6 +487,8 @@ export default function Home() {
         "Error launching Aviator:",
         error?.response?.data?.message || error.message,
       );
+
+        setIsLaunching(false);
     }
   };
 
@@ -505,6 +507,98 @@ export default function Home() {
   }, []);
 
   return (
+<>
+ <AnimatePresence>
+        {isLaunching && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9999,
+              background: "rgba(7,9,15,0.92)",
+              backdropFilter: "blur(12px)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 20,
+            }}
+          >
+            {/* Spinner ring */}
+            <div style={{ position: "relative", width: 72, height: 72 }}>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: "50%",
+                  border: "3px solid rgba(245,158,11,0.15)",
+                  borderTopColor: "#f59e0b",
+                  position: "absolute",
+                  inset: 0,
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <RiVipCrown2Fill size={26} color="#f59e0b" />
+              </div>
+            </div>
+
+            {/* Text */}
+            <div style={{ textAlign: "center" }}>
+              <p
+                style={{
+                  fontSize: 15,
+                  fontWeight: 800,
+                  color: "#fff",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                Launching Game
+              </p>
+              <p
+                style={{
+                  fontSize: 11,
+                  color: "rgba(255,255,255,0.35)",
+                  marginTop: 4,
+                  letterSpacing: "0.06em",
+                }}
+              >
+                Please wait...
+              </p>
+            </div>
+
+            {/* Animated dots */}
+            <div style={{ display: "flex", gap: 6 }}>
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  animate={{ opacity: [0.2, 1, 0.2], y: [0, -5, 0] }}
+                  transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: "#f59e0b",
+                  }}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     <div
       className="relative min-h-screen overflow-hidden text-white"
       style={{
@@ -819,5 +913,6 @@ export default function Home() {
 
       {/* BOTTOM NAV */}
     </div>
+</>
   );
 }
