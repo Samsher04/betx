@@ -14,6 +14,7 @@ import {
 } from "../redux/slices/userSlice";
 import { isMobile } from "react-device-detect";
 import { showToast } from "../utils/ToastContent";
+import DailyRewardPopup from "../components/DailyRewardPopup";
 
 const LIVE_GAMES = [
   {
@@ -131,7 +132,7 @@ function PulsingDot({ color = "#22c55e" }) {
   );
 }
 
-function SectionTitle({ title, icon, accent = "#f59e0b" , onClick, }) {
+function SectionTitle({ title, icon, accent = "#f59e0b", onClick }) {
   return (
     <div className="flex items-center justify-between mt-8 mb-4">
       <div className="flex items-center gap-3">
@@ -147,7 +148,7 @@ function SectionTitle({ title, icon, accent = "#f59e0b" , onClick, }) {
         </h2>
       </div>
       <button
-   onClick={onClick}
+        onClick={onClick}
         className="text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all duration-300 hover:scale-105"
         style={{
           color: accent,
@@ -423,7 +424,7 @@ export default function Home() {
   const loginType = useSelector((state) => state.user.loggedInType);
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const siteCasinoData = useSelector((state) => state.siteCasino);
-    const [isLaunching, setIsLaunching] = useState(false);
+  const [isLaunching, setIsLaunching] = useState(false);
 
   const handlePlayClick = async (item) => {
     if (loginType == "") {
@@ -446,7 +447,7 @@ export default function Home() {
       return;
     }
 
-        setIsLaunching(true);
+    setIsLaunching(true);
 
     try {
       // setLoading(true);
@@ -488,7 +489,7 @@ export default function Home() {
         error?.response?.data?.message || error.message,
       );
 
-        setIsLaunching(false);
+      setIsLaunching(false);
     }
   };
 
@@ -506,9 +507,27 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
+  function hasClaimedToday(userId) {
+    if (!userId) return false;
+    const raw = localStorage.getItem(`dailyClaimed_${userId}`);
+    if (!raw) return false;
+    const last = new Date(raw);
+    const now = new Date();
+    return (
+      last.getFullYear() === now.getFullYear() &&
+      last.getMonth() === now.getMonth() &&
+      last.getDate() === now.getDate()
+    );
+  }
+
+  const userId = userData?._id;
+  const [showReward, setShowReward] = useState(
+    () => isLoggedIn && !hasClaimedToday(userId),
+  );
+
   return (
-<>
- <AnimatePresence>
+    <>
+      <AnimatePresence>
         {isLaunching && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -599,320 +618,339 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
-    <div
-      className="relative min-h-screen overflow-hidden text-white"
-      style={{
-        background: "#07080d",
-        fontFamily: "'Segoe UI', system-ui, sans-serif",
-      }}
-    >
-      {/* AMBIENT BG */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px]"
-          style={{
-            background:
-              "radial-gradient(ellipse, rgba(251,191,36,0.08) 0%, transparent 70%)",
-          }}
-        />
-        <div
-          className="absolute top-1/3 -left-20 w-[300px] h-[300px]"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(124,58,237,0.07) 0%, transparent 70%)",
-          }}
-        />
-        <div
-          className="absolute bottom-0 right-0 w-[300px] h-[300px]"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(34,197,94,0.05) 0%, transparent 70%)",
-          }}
-        />
-        {/* Grid pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        />
-      </div>
-
-      <div className="max-w-[430px] mx-auto px-4 pb-24">
-        {/* TOP BAR */}
-
-        {/* AVIATOR HERO BANNER */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-[32px] h-[240px]"
-          style={{
-            border: "1px solid rgba(239,68,68,0.18)",
-            background: "linear-gradient(135deg,#140909 0%,#09090f 100%)",
-            boxShadow:
-              "0 20px 60px rgba(0,0,0,0.55), 0 0 45px rgba(239,68,68,0.12)",
-          }}
-        >
-          {/* AVIATOR IMAGE */}
-          <img
-            src="https://igamingafrika.com/wp-content/uploads/2023/05/Aviator_10.png"
-            alt="aviator"
-            className="absolute right-0 top-0 h-full object-contain opacity-90"
-          />
-
-          {/* DARK OVERLAY */}
+      <div
+        className="relative min-h-screen overflow-hidden text-white"
+        style={{
+          background: "#07080d",
+          fontFamily: "'Segoe UI', system-ui, sans-serif",
+        }}
+      >
+        {/* AMBIENT BG */}
+        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
           <div
-            className="absolute inset-0"
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px]"
             style={{
               background:
-                "linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.82) 40%, rgba(0,0,0,0.15) 100%)",
+                "radial-gradient(ellipse, rgba(251,191,36,0.08) 0%, transparent 70%)",
             }}
           />
-
-          {/* RED GLOW */}
-          <div className="absolute -left-20 top-0 w-[240px] h-[240px] bg-red-500/20 blur-[100px] rounded-full" />
-
-          {/* GOLD TOP LINE */}
           <div
-            className="absolute top-0 inset-x-0 h-px"
+            className="absolute top-1/3 -left-20 w-[300px] h-[300px]"
             style={{
               background:
-                "linear-gradient(90deg,transparent,rgba(251,191,36,0.6),transparent)",
+                "radial-gradient(circle, rgba(124,58,237,0.07) 0%, transparent 70%)",
             }}
           />
+          <div
+            className="absolute bottom-0 right-0 w-[300px] h-[300px]"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(34,197,94,0.05) 0%, transparent 70%)",
+            }}
+          />
+          {/* Grid pattern */}
+          <div
+            className="absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+              backgroundSize: "40px 40px",
+            }}
+          />
+        </div>
 
-          {/* CONTENT */}
-          <div className="relative z-10 h-full p-6 flex flex-col justify-between">
-            {/* TOP */}
-            <div className="flex items-center justify-between">
-              {/* LIVE */}
-              <div
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full"
-                style={{
-                  background: "rgba(239,68,68,0.12)",
-                  border: "1px solid rgba(239,68,68,0.25)",
-                }}
-              >
-                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+        <div className="max-w-[430px] mx-auto px-4 pb-24">
+          {/* TOP BAR */}
 
-                <span className="text-[10px] font-black tracking-[2px] text-red-400">
-                  LIVE GAME
-                </span>
-              </div>
-
-              {/* PLAYERS */}
-              <div
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full"
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
-                <RiVipCrown2Fill size={13} className="text-yellow-400" />
-
-                <span className="text-[10px] font-bold text-white/70">
-                  24K PLAYERS
-                </span>
-              </div>
-            </div>
-
-            {/* BOTTOM */}
-            <div>
-              {/* DESC */}
-              <p className="text-white/50 text-xs mt-3 leading-relaxed max-w-[220px]">
-                Cash out before the plane crashes and win huge multipliers
-                instantly.
-              </p>
-
-              {/* BUTTON */}
-              <motion.button
-                onClick={() => handlePlayClick({ gameId: AVIATOR_GAME_ID })}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="mt-5 px-5 py-3 rounded-2xl flex items-center gap-2 text-sm font-black tracking-wide"
-                style={{
-                  background: "linear-gradient(135deg,#ef4444,#f97316)",
-                  color: "#fff",
-                  boxShadow: "0 10px 30px rgba(239,68,68,0.35)",
-                }}
-              >
-                <RiPlayFill size={18} />
-                PLAY AVIATOR
-              </motion.button>
-            </div>
-          </div>
-
-          {/* FLOATING MULTIPLIER */}
+          {/* AVIATOR HERO BANNER */}
           <motion.div
-            animate={{
-              y: [-5, 5, -5],
-            }}
-            transition={{
-              repeat: Infinity,
-              duration: 2.5,
-            }}
-            className="absolute right-5 bottom-5 px-4 py-2 rounded-2xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="relative overflow-hidden rounded-[32px] h-[240px]"
             style={{
-              background: "linear-gradient(135deg,#ef4444,#f97316)",
-              boxShadow: "0 8px 25px rgba(239,68,68,0.35)",
+              border: "1px solid rgba(239,68,68,0.18)",
+              background: "linear-gradient(135deg,#140909 0%,#09090f 100%)",
+              boxShadow:
+                "0 20px 60px rgba(0,0,0,0.55), 0 0 45px rgba(239,68,68,0.12)",
             }}
           >
-            <span className="text-white text-sm font-black tracking-wide">
-              12.43x
-            </span>
-          </motion.div>
-        </motion.div>
+            {/* AVIATOR IMAGE */}
+            <img
+              src="https://igamingafrika.com/wp-content/uploads/2023/05/Aviator_10.png"
+              alt="aviator"
+              className="absolute right-0 top-0 h-full object-contain opacity-90"
+            />
 
-        {/* STATS BAR */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="grid grid-cols-3 gap-3 mt-4"
-        >
-          {[
-            {
-              label: "Online Players",
-              value: onlinePlayers.toLocaleString(),
-              icon: RiTeamFill,
-              color: "#f59e0b",
-              glow: "rgba(245,158,11,0.35)",
-            },
-            {
-              label: "Add Funds",
-              value: "Deposit",
-              icon: RiLuggageDepositFill,
-              color: "#22c55e",
-              glow: "rgba(34,197,94,0.35)",
-              path: "/deposit",
-            },
-            {
-              label: "Withdraw Funds",
-              value: "Withdraw",
-              icon: PiHandWithdrawFill,
-              color: "#ef4444",
-              glow: "rgba(239,68,68,0.35)",
-              path: "/withdraw",
-            },
-          ].map((stat, i) => {
-            const Icon = stat.icon;
+            {/* DARK OVERLAY */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.82) 40%, rgba(0,0,0,0.15) 100%)",
+              }}
+            />
 
-            return (
-              <motion.div
-                whileHover={{
-                  y: -4,
-                  scale: 1.03,
-                }}
-                whileTap={{
-                  scale: 0.97,
-                }}
-                onClick={() => stat.path && navigate(stat.path)}
-                key={i}
-                className="relative overflow-hidden rounded-[22px] p-4 text-center"
-                style={{
-                  background: `${stat.color}10`,
-                  border: `1px solid ${stat.color}25`,
-                  backdropFilter: "blur(14px)",
-                  cursor: stat.path ? "pointer" : "default",
-                }}
-              >
-                {/* TOP LIGHT */}
+            {/* RED GLOW */}
+            <div className="absolute -left-20 top-0 w-[240px] h-[240px] bg-red-500/20 blur-[100px] rounded-full" />
+
+            {/* GOLD TOP LINE */}
+            <div
+              className="absolute top-0 inset-x-0 h-px"
+              style={{
+                background:
+                  "linear-gradient(90deg,transparent,rgba(251,191,36,0.6),transparent)",
+              }}
+            />
+
+            {/* CONTENT */}
+            <div className="relative z-10 h-full p-6 flex flex-col justify-between">
+              {/* TOP */}
+              <div className="flex items-center justify-between">
+                {/* LIVE */}
                 <div
-                  className="absolute top-0 inset-x-0 h-px"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full"
                   style={{
-                    background: `linear-gradient(90deg,transparent,${stat.color},transparent)`,
-                  }}
-                />
-
-                {/* ICON */}
-                <div
-                  className="w-[42px] h-[42px] rounded-2xl mx-auto flex items-center justify-center"
-                  style={{
-                    background: `${stat.color}18`,
-                    boxShadow: `0 0 18px ${stat.glow}`,
+                    background: "rgba(239,68,68,0.12)",
+                    border: "1px solid rgba(239,68,68,0.25)",
                   }}
                 >
-                  <Icon
-                    size={22}
+                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+
+                  <span className="text-[10px] font-black tracking-[2px] text-red-400">
+                    LIVE GAME
+                  </span>
+                </div>
+
+                {/* PLAYERS */}
+                <div
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full"
+                  style={{
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                  }}
+                >
+                  <RiVipCrown2Fill size={13} className="text-yellow-400" />
+
+                  <span className="text-[10px] font-bold text-white/70">
+                    24K PLAYERS
+                  </span>
+                </div>
+              </div>
+
+              {/* BOTTOM */}
+              <div>
+                {/* DESC */}
+                <p className="text-white/50 text-xs mt-3 leading-relaxed max-w-[220px]">
+                  Cash out before the plane crashes and win huge multipliers
+                  instantly.
+                </p>
+
+                {/* BUTTON */}
+                <motion.button
+                  onClick={() => handlePlayClick({ gameId: AVIATOR_GAME_ID })}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="mt-5 px-5 py-3 rounded-2xl flex items-center gap-2 text-sm font-black tracking-wide"
+                  style={{
+                    background: "linear-gradient(135deg,#ef4444,#f97316)",
+                    color: "#fff",
+                    boxShadow: "0 10px 30px rgba(239,68,68,0.35)",
+                  }}
+                >
+                  <RiPlayFill size={18} />
+                  PLAY AVIATOR
+                </motion.button>
+              </div>
+            </div>
+
+            {/* FLOATING MULTIPLIER */}
+            <motion.div
+              animate={{
+                y: [-5, 5, -5],
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 2.5,
+              }}
+              className="absolute right-5 bottom-5 px-4 py-2 rounded-2xl"
+              style={{
+                background: "linear-gradient(135deg,#ef4444,#f97316)",
+                boxShadow: "0 8px 25px rgba(239,68,68,0.35)",
+              }}
+            >
+              <span className="text-white text-sm font-black tracking-wide">
+                12.43x
+              </span>
+            </motion.div>
+          </motion.div>
+
+          {/* STATS BAR */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-3 gap-3 mt-4"
+          >
+            {[
+              {
+                label: "Online Players",
+                value: onlinePlayers.toLocaleString(),
+                icon: RiTeamFill,
+                color: "#f59e0b",
+                glow: "rgba(245,158,11,0.35)",
+              },
+              {
+                label: "Add Funds",
+                value: "Deposit",
+                icon: RiLuggageDepositFill,
+                color: "#22c55e",
+                glow: "rgba(34,197,94,0.35)",
+                path: "/deposit",
+              },
+              {
+                label: "Withdraw Funds",
+                value: "Withdraw",
+                icon: PiHandWithdrawFill,
+                color: "#ef4444",
+                glow: "rgba(239,68,68,0.35)",
+                path: "/withdraw",
+              },
+            ].map((stat, i) => {
+              const Icon = stat.icon;
+
+              return (
+                <motion.div
+                  whileHover={{
+                    y: -4,
+                    scale: 1.03,
+                  }}
+                  whileTap={{
+                    scale: 0.97,
+                  }}
+                  onClick={() => stat.path && navigate(stat.path)}
+                  key={i}
+                  className="relative overflow-hidden rounded-[22px] p-4 text-center"
+                  style={{
+                    background: `${stat.color}10`,
+                    border: `1px solid ${stat.color}25`,
+                    backdropFilter: "blur(14px)",
+                    cursor: stat.path ? "pointer" : "default",
+                  }}
+                >
+                  {/* TOP LIGHT */}
+                  <div
+                    className="absolute top-0 inset-x-0 h-px"
                     style={{
-                      color: stat.color,
-                      filter: `drop-shadow(0 0 8px ${stat.glow})`,
+                      background: `linear-gradient(90deg,transparent,${stat.color},transparent)`,
                     }}
                   />
-                </div>
 
-                {/* VALUE */}
-                <div
-                  className="text-sm font-black mt-3 tracking-wide"
-                  style={{
-                    color: stat.color,
-                  }}
-                >
-                  {stat.value}
-                </div>
+                  {/* ICON */}
+                  <div
+                    className="w-[42px] h-[42px] rounded-2xl mx-auto flex items-center justify-center"
+                    style={{
+                      background: `${stat.color}18`,
+                      boxShadow: `0 0 18px ${stat.glow}`,
+                    }}
+                  >
+                    <Icon
+                      size={22}
+                      style={{
+                        color: stat.color,
+                        filter: `drop-shadow(0 0 8px ${stat.glow})`,
+                      }}
+                    />
+                  </div>
 
-                {/* LABEL */}
-                <div className="text-[10px] text-white/40 mt-1 leading-tight font-medium">
-                  {stat.label}
-                </div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+                  {/* VALUE */}
+                  <div
+                    className="text-sm font-black mt-3 tracking-wide"
+                    style={{
+                      color: stat.color,
+                    }}
+                  >
+                    {stat.value}
+                  </div>
 
-        {/* WINNERS TICKER */}
-        <div className="mt-4">
-          <WinnersTicket />
+                  {/* LABEL */}
+                  <div className="text-[10px] text-white/40 mt-1 leading-tight font-medium">
+                    {stat.label}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+
+          {/* WINNERS TICKER */}
+          <div className="mt-4">
+            <WinnersTicket />
+          </div>
+
+          {/* LIVE GAMES */}
+          <SectionTitle
+            title="Live Games"
+            icon="🔴"
+            accent="#ef4444"
+            onClick={() => navigate("/vip")}
+          />
+          <div className="grid grid-cols-2 gap-3">
+            {LIVE_GAMES.map((game, i) => (
+              <LiveGameCard
+                key={i}
+                game={game}
+                i={i}
+                handlePlayClick={handlePlayClick}
+              />
+            ))}
+          </div>
+
+          {/* ORIGINALS */}
+          <SectionTitle
+            title="BetX Originals"
+            icon="👑"
+            accent="#f59e0b"
+            onClick={() => navigate("/vip")}
+          />
+          <div className="grid grid-cols-3 gap-3">
+            {ORIGINALS.map((item, i) => (
+              <OriginalCard
+                key={i}
+                item={item}
+                i={i}
+                handlePlayClick={handlePlayClick}
+              />
+            ))}
+          </div>
+
+          {/* SLOTS */}
+          <SectionTitle
+            title="Popular Slots"
+            icon="🎰"
+            accent="#a78bfa"
+            onClick={() => navigate("/vip")}
+          />
+          <div className="space-y-3">
+            {SLOTS.map((slot, i) => (
+              <SlotCard
+                key={i}
+                slot={slot}
+                i={i}
+                handlePlayClick={handlePlayClick}
+              />
+            ))}
+          </div>
+
+          {/* BOTTOM SPACER */}
+          <div className="h-6" />
         </div>
 
-        {/* LIVE GAMES */}
-        <SectionTitle title="Live Games" icon="🔴" accent="#ef4444"  onClick={() => navigate("/vip")}/>
-        <div className="grid grid-cols-2 gap-3">
-          {LIVE_GAMES.map((game, i) => (
-            <LiveGameCard
-              key={i}
-              game={game}
-              i={i}
-              handlePlayClick={handlePlayClick}
-            />
-          ))}
-        </div>
-
-        {/* ORIGINALS */}
-        <SectionTitle title="BetX Originals" icon="👑" accent="#f59e0b"  onClick={() => navigate("/vip")}/>
-        <div className="grid grid-cols-3 gap-3">
-          {ORIGINALS.map((item, i) => (
-            <OriginalCard
-              key={i}
-              item={item}
-              i={i}
-              handlePlayClick={handlePlayClick}
-            />
-          ))}
-        </div>
-
-        {/* SLOTS */}
-        <SectionTitle title="Popular Slots" icon="🎰" accent="#a78bfa"  onClick={() => navigate("/vip")}/>
-        <div className="space-y-3">
-          {SLOTS.map((slot, i) => (
-            <SlotCard
-              key={i}
-              slot={slot}
-              i={i}
-              handlePlayClick={handlePlayClick}
-            />
-          ))}
-        </div>
-
-        {/* BOTTOM SPACER */}
-        <div className="h-6" />
+        {/* BOTTOM NAV */}
       </div>
 
-      {/* BOTTOM NAV */}
-    </div>
-</>
+      {/* {showReward && isLoggedIn && (
+        <DailyRewardPopup onClose={() => setShowReward(false)} />
+      )} */}
+    </>
   );
 }
